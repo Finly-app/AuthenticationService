@@ -4,6 +4,7 @@ using Authentication.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Authentication.Persistance.Migrations
 {
     [DbContext(typeof(AuthenticationDatabaseContext))]
-    partial class AuthenticationDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250402202843_unique_username_and_password")]
+    partial class unique_username_and_password
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,9 +42,10 @@ namespace Authentication.Persistance.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("expires_at");
 
-                    b.Property<string>("JwtToken")
+                    b.Property<string>("JWTToken")
                         .IsRequired()
-                        .HasColumnType("nvarchar(MAX)")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("token");
 
                     b.Property<DateTime?>("UpdatedAt")

@@ -1,4 +1,5 @@
 ﻿using Authentication.Domain.Entities;
+using Authentication.Persistance.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Authentication.Persistance {
@@ -6,6 +7,14 @@ namespace Authentication.Persistance {
         public AuthenticationDatabaseContext(DbContextOptions<AuthenticationDatabaseContext> options) : base(options) { }
 
         public DbSet<Token> Tokens { get; set; }
+        public DbSet<User> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+            modelBuilder.ApplyConfiguration(new TokenConfiguration());
+        }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {
             var entries = ChangeTracker

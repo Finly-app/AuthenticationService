@@ -16,12 +16,20 @@ namespace Authentication.Persistance.Configurations {
                    .HasColumnName("user_id")
                    .HasColumnType("uniqueidentifier");
 
-            builder.Property(t => t.JWTToken)
+            builder.Property(t => t.JwtToken)
                    .HasColumnName("token")
-                   .HasMaxLength(50);
+                   .HasColumnType("nvarchar(MAX)");
 
             builder.Property(t => t.ExpiresAt)
                    .HasColumnName("expires_at")
+                   .HasColumnType("datetime");
+
+            builder.Property(u => u.CreatedAt)
+                   .HasColumnName("created_at")
+                   .HasColumnType("datetime");
+
+            builder.Property(u => u.UpdatedAt)
+                   .HasColumnName("updated_at")
                    .HasColumnType("datetime");
         }
     }
