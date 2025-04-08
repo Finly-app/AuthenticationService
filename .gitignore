@@ -413,6 +413,3 @@ coverage*
 coverage-report/
 *.lcov
 *.html
-
-# ReportGenerator output
-report-generator/
