@@ -9,9 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
-builder.Configuration
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 var connectionString = builder.Configuration.GetConnectionString("LocalConnection");
 builder.Services.AddDbContext<AuthenticationDatabaseContext>(options => options.UseSqlServer(connectionString));
