@@ -38,7 +38,7 @@ jobs:
 
       - name: Set Docker image variables
         run: |
-          echo "IMAGE_NAME=ehvdirewolf10/authenticationService" >> $GITHUB_ENV
+          echo "IMAGE_NAME=ehvdirewolf10/authenticationservice" >> $GITHUB_ENV
           echo "TAG=$(date +%s)" >> $GITHUB_ENV
 
       - name: Build the Docker image
