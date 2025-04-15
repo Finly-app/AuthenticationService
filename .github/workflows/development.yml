@@ -44,7 +44,7 @@ jobs:
       - name: Build the Docker image
         run: |
           docker build . \
-            --file AuthenticationService/Dockerfile \
+            --file AuthenticationService.API/Dockerfile \
             --tag $IMAGE_NAME:$TAG \
             --tag $IMAGE_NAME:latest \
             --build-arg BUILD_CONFIGURATION=Release
