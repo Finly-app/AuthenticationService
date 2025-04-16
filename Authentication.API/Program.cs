@@ -10,8 +10,8 @@ var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
 
-var connectionString = builder.Configuration.GetConnectionString("LocalConnection");
-builder.Services.AddDbContext<AuthenticationDatabaseContext>(options => options.UseSqlServer(connectionString));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AuthenticationDatabaseContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();

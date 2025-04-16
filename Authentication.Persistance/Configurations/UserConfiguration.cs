@@ -5,11 +5,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Authentication.Persistance.Configurations {
     public class UserConfiguration : IEntityTypeConfiguration<User> {
         public void Configure(EntityTypeBuilder<User> builder) {
+            builder.ToTable("users");
+
             builder.HasKey(u => u.UserId);
 
             builder.Property(u => u.UserId)
-                 .HasColumnName("user_id")
-                 .HasMaxLength(50);
+                   .HasColumnName("user_id")
+                   .HasColumnType("uuid");
 
             builder.HasIndex(u => u.Username)
                    .IsUnique();
@@ -17,7 +19,6 @@ namespace Authentication.Persistance.Configurations {
             builder.Property(u => u.Username)
                    .HasColumnName("username")
                    .HasMaxLength(50);
-
 
             builder.Property(u => u.Password)
                    .HasColumnName("password")
@@ -32,11 +33,11 @@ namespace Authentication.Persistance.Configurations {
 
             builder.Property(u => u.CreatedAt)
                    .HasColumnName("created_at")
-                   .HasColumnType("datetime");
+                   .HasColumnType("timestamp");
 
             builder.Property(u => u.UpdatedAt)
                    .HasColumnName("updated_at")
-                   .HasColumnType("datetime");
+                   .HasColumnType("timestamp");
         }
     }
 }

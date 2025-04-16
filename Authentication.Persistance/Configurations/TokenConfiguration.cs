@@ -5,32 +5,33 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Authentication.Persistance.Configurations {
     public class TokenConfiguration : IEntityTypeConfiguration<Token> {
         public void Configure(EntityTypeBuilder<Token> builder) {
+            builder.ToTable("tokens");
+
             builder.HasKey(t => t.Id);
 
             builder.Property(t => t.Id)
                    .HasColumnName("id")
-                   .HasColumnType("int")
-                   .ValueGeneratedOnAdd();
+                   .UseIdentityAlwaysColumn();
 
             builder.Property(t => t.UserId)
                    .HasColumnName("user_id")
-                   .HasColumnType("uniqueidentifier");
+                   .HasColumnType("uuid");
 
             builder.Property(t => t.JwtToken)
                    .HasColumnName("token")
-                   .HasColumnType("nvarchar(MAX)");
+                   .HasColumnType("text");
 
             builder.Property(t => t.ExpiresAt)
                    .HasColumnName("expires_at")
-                   .HasColumnType("datetime");
+                   .HasColumnType("timestamp");
 
-            builder.Property(u => u.CreatedAt)
+            builder.Property(t => t.CreatedAt)
                    .HasColumnName("created_at")
-                   .HasColumnType("datetime");
+                   .HasColumnType("timestamp");
 
-            builder.Property(u => u.UpdatedAt)
+            builder.Property(t => t.UpdatedAt)
                    .HasColumnName("updated_at")
-                   .HasColumnType("datetime");
+                   .HasColumnType("timestamp");
         }
     }
 }
