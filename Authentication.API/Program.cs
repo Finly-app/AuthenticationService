@@ -7,11 +7,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
 builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AuthenticationDatabaseContext>(options => options.UseNpgsql(connectionString));
+var finalConnectionString = connectionString.Replace("{DB_PASSWORD}", password);
+builder.Services.AddDbContext<AuthenticationDatabaseContext>(options => options.UseNpgsql(finalConnectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
