@@ -10,15 +10,15 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # ✅ Correcting the COPY command
-COPY ["AuthenticationService/Authentication.API.csproj", "./AuthenticationService/"]
+COPY ["Authentication.API/Authentication.API.csproj", "./Authentication.API/"]
 
 # ✅ Correcting the dotnet restore command
-RUN dotnet restore "AuthenticationService/Authentication.API.csproj"
+RUN dotnet restore "Authentication.API/Authentication.API.csproj"
 
 # Copy everything into the container
 COPY . .
 
-WORKDIR "/src/AuthenticationService"
+WORKDIR "/src/Authentication.API"
 
 # Build the project
 RUN dotnet build "Authentication.API.csproj" -c "$BUILD_CONFIGURATION" -o /app/build
