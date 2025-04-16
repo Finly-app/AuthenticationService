@@ -6,14 +6,24 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+var dbPassword = builder.Configuration["DB_PASSWORD"];
 
-builder.Configuration.AddJsonFile($"appsettings.{environment}.json");
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddUserSecrets<Program>()
+    .AddEnvironmentVariables();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-var finalConnectionString = connectionString.Replace("{DB_PASSWORD}", password);
-builder.Services.AddDbContext<AuthenticationDatabaseContext>(options => options.UseNpgsql(finalConnectionString));
+var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(dbPassword))
+    throw new Exception("Environment variable DB_PASSWORD not set!");
+
+var finalConnectionString = rawConnectionString.Replace("{DB_PASSWORD}", dbPassword);
+
+builder.Services.AddDbContext<AuthenticationDatabaseContext>(options =>
+    options.UseNpgsql(finalConnectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
