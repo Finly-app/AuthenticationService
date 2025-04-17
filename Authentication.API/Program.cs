@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Release";
 var dbPassword = builder.Configuration["DB_PASSWORD"];
 
 builder.Configuration
@@ -35,6 +35,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope()) {
+    var authContext = scope.ServiceProvider.GetRequiredService<AuthenticationDatabaseContext>();
+    await authContext.Database.MigrateAsync();
+}
 
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
