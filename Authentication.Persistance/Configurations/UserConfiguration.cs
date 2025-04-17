@@ -33,11 +33,11 @@ namespace Authentication.Persistance.Configurations {
 
             builder.Property(u => u.CreatedAt)
                    .HasColumnName("created_at")
-                   .HasColumnType("timestamp");
+                   .HasColumnType("timestamp with time zone");
 
             builder.Property(u => u.UpdatedAt)
                    .HasColumnName("updated_at")
-                   .HasColumnType("timestamp");
+                   .HasColumnType("timestamp with time zone");
         }
     }
 }

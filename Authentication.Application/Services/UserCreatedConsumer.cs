@@ -2,6 +2,7 @@
 using Authentication.Application.Security;
 using Authentication.Domain.Entities;
 using Confluent.Kafka;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,18 +13,21 @@ namespace Authentication.Application.Services {
     public class UserCreatedConsumer : BackgroundService {
         private readonly IConsumer<Ignore, string> _consumer;
         private readonly ILogger<UserCreatedConsumer> _logger;
+        private readonly IConfiguration _configuration;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public UserCreatedConsumer(ILogger<UserCreatedConsumer> logger, IServiceScopeFactory serviceScopeFactory) {
+        public UserCreatedConsumer(ILogger<UserCreatedConsumer> logger, IServiceScopeFactory serviceScopeFactory,  IConfiguration configuration) {
+            _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
+            _configuration = configuration;
+
             var config = new ConsumerConfig {
                 GroupId = "auth-service-consumer-group",
-                BootstrapServers = "localhost:9092",
+                BootstrapServers = _configuration["Kafka:BootstrapServers"],
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
 
             _consumer = new ConsumerBuilder<Ignore, string>(config).Build();
-            _logger = logger;
-            _serviceScopeFactory = serviceScopeFactory;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken) {
