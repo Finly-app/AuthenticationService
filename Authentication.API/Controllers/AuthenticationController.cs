@@ -13,12 +13,18 @@ namespace Authentication.API.Controllers {
         }
 
         [HttpPost("login")]
-        public ActionResult<LoginRequestDto> Login([FromBody] LoginRequestDto request) {
-            var loginResponse = _authenticationService.Login(request);
+        public ActionResult<LoginResponseDto> Login([FromBody] LoginRequestDto request) {
+            var result = _authenticationService.Login(request);
 
-            if (loginResponse == null) return NotFound();
+            if (!result.Success) {
+                if (result.IsInactive)
+                    return Forbid();
 
-            return Ok(loginResponse);
+                return NotFound(); 
+            }
+
+            return Ok(result.Response);
         }
+
     }
 }

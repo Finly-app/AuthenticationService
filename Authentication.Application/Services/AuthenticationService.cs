@@ -16,15 +16,22 @@ namespace Authentication.Application.Services {
             _configuration = configuration;
         }
 
-        public LoginResponseDto Login(LoginRequestDto request) {
+        public LoginResult Login(LoginRequestDto request) {
             User user = _userRepository.GetHashedPassword(request.Username, request.Email);
+
+            if (user == null)
+                return new LoginResult { Success = false };
+
+            if (!user.Active)
+                return new LoginResult { Success = false, IsInactive = true };
 
             bool verified = PasswordHasher.Verify(request.Password, user.Password);
 
-            if (!verified) return null;
+            if (!verified)
+                return new LoginResult { Success = false };
 
             string token = TokenGenerator.GenerateToken(
-                user.UserId.ToString(),
+                user.Id.ToString(),
                 user.Username,
                 user.Email,
                 _configuration["Jwt:Key"],
@@ -34,14 +41,16 @@ namespace Authentication.Application.Services {
 
             var expiresAt = DateTime.UtcNow.AddHours(1);
 
-            Token tokenEntity = new Token(user.UserId, token, expiresAt);
+            _tokenRepository.StoreToken(new Token(user.Id, token, expiresAt));
 
-            _tokenRepository.StoreToken(tokenEntity);
-
-            return new LoginResponseDto {
-                Token = token,
-                ExpiresAt = expiresAt
+            return new LoginResult {
+                Success = true,
+                Response = new LoginResponseDto {
+                    Token = token,
+                    ExpiresAt = expiresAt
+                }
             };
         }
+
     }
 }

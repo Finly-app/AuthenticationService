@@ -2,6 +2,6 @@
 
 namespace Authentication.Application.Interfaces {
     public interface IAuthenticationService {
-        LoginResponseDto Login(LoginRequestDto request);
+        LoginResult Login(LoginRequestDto request);
     }
 }

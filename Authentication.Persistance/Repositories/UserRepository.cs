@@ -1,5 +1,6 @@
 ﻿using Authentication.Application.Interfaces;
 using Authentication.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Authentication.Persistance.Repositories {
     public class UserRepository : IUserRepository {
@@ -23,5 +24,15 @@ namespace Authentication.Persistance.Repositories {
 
             return user;
         }
+
+        public async Task<UserExistenceResult> FindByEmailOrUsernameAsync(string email, string username) {
+            var result = new UserExistenceResult();
+
+            result.EmailExists = await _context.Users.AnyAsync(u => u.Email == email);
+            result.UsernameExists = await _context.Users.AnyAsync(u => u.Username == username);
+
+            return result;
+        }
+
     }
 }

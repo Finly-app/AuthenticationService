@@ -7,10 +7,10 @@ namespace Authentication.Persistance.Configurations {
         public void Configure(EntityTypeBuilder<User> builder) {
             builder.ToTable("users");
 
-            builder.HasKey(u => u.UserId);
+            builder.HasKey(u => u.Id);
 
-            builder.Property(u => u.UserId)
-                   .HasColumnName("user_id")
+            builder.Property(u => u.Id)
+                   .HasColumnName("id")
                    .HasColumnType("uuid");
 
             builder.HasIndex(u => u.Username)
@@ -30,6 +30,14 @@ namespace Authentication.Persistance.Configurations {
             builder.Property(u => u.Email)
                    .HasColumnName("email")
                    .HasMaxLength(100);
+
+            builder.Property(u => u.Active)
+                   .HasColumnName("active")
+                   .HasDefaultValue(true);
+
+            builder.Property(u => u.DeactivatedAt)
+                   .HasColumnName("deactivated_at")
+                   .HasColumnType("timestamp with time zone");
 
             builder.Property(u => u.CreatedAt)
                    .HasColumnName("created_at")

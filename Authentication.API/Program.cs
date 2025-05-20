@@ -1,11 +1,14 @@
-using Authentication.Application.Interfaces;
+﻿using Authentication.Application.Interfaces;
 using Authentication.Application.Services;
 using Authentication.Persistance;
 using Authentication.Persistance.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ENVIRONMENT AND CONFIGURATION
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Release";
 var dbPassword = builder.Configuration["DB_PASSWORD"];
 
@@ -15,6 +18,7 @@ builder.Configuration
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables();
 
+// DB CONNECTION
 var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 if (string.IsNullOrWhiteSpace(dbPassword))
@@ -25,22 +29,46 @@ var finalConnectionString = rawConnectionString.Replace("{DB_PASSWORD}", dbPassw
 builder.Services.AddDbContext<AuthenticationDatabaseContext>(options =>
     options.UseNpgsql(finalConnectionString));
 
+// DEPENDENCY INJECTION
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 
 builder.Services.AddHostedService<UserCreatedConsumer>();
+
+// JWT AUTHENTICATION CONFIGURATION
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options => {
+        options.TokenValidationParameters = new TokenValidationParameters {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = key
+        };
+    });
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// DATABASE MIGRATION
 using (var scope = app.Services.CreateScope()) {
     var authContext = scope.ServiceProvider.GetRequiredService<AuthenticationDatabaseContext>();
     await authContext.Database.MigrateAsync();
 }
 
+// MIDDLEWARE PIPELINE
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -48,6 +76,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

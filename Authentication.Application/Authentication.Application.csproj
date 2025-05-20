@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.9.0" />
-    <PackageReference Include="Finly.Shared.Contracts" Version="1.0.1" />
+    <PackageReference Include="Finly.Shared.Contracts" Version="1.0.16" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
