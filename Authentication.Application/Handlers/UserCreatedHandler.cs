@@ -17,9 +17,10 @@ public class UserCreatedHandler : IUserCreatedHandler {
 
     public async Task HandleAsync(UserCreatedEvent message, string secret, IProducer<Null, string> producer) {
         using var scope = _scopeFactory.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var _userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
-        var existence = await repo.FindByEmailOrUsernameAsync(message.Email, message.Username);
+        var existence = await _userRepository.FindByEmailOrUsernameAsync(message.Email, message.Username);
         UserCreatedResponse response;
 
         if (existence.EmailExists || existence.UsernameExists) {
@@ -36,7 +37,9 @@ public class UserCreatedHandler : IUserCreatedHandler {
         } else {
             var hashedPassword = PasswordHasher.Hash(message.Password);
             var user = new User(Guid.NewGuid(), message.Username, hashedPassword, message.Email);
-            await repo.CreateUserAsync(user);
+            await _userRepository.CreateUserAsync(user);
+
+            await _userService.GenerateEmailConfirmationAsync(user);
 
             response = new UserCreatedResponse {
                 CorrelationId = message.CorrelationId,
@@ -46,8 +49,8 @@ public class UserCreatedHandler : IUserCreatedHandler {
         }
 
         var json = JsonConvert.SerializeObject(response);
-        var kafkaMessage = MessageHelper.CreateHmacMessage(json, secret);
-        await producer.ProduceAsync(message.ReplyTo, kafkaMessage);
+        var hmacMessage = MessageHelper.CreateHmacMessage(json, secret);
+        await producer.ProduceAsync(message.ReplyTo, hmacMessage);
 
         _logger.LogInformation("Handled user creation. CorrelationId: {CorrelationId}", message.CorrelationId);
     }

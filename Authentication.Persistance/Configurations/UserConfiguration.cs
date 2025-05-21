@@ -31,9 +31,11 @@ namespace Authentication.Persistance.Configurations {
                    .HasColumnName("email")
                    .HasMaxLength(100);
 
+            builder.Property(u => u.EmailConfirmed)
+                   .HasColumnName("email_confirmed");
+
             builder.Property(u => u.Active)
-                   .HasColumnName("active")
-                   .HasDefaultValue(true);
+                   .HasColumnName("active");
 
             builder.Property(u => u.DeactivatedAt)
                    .HasColumnName("deactivated_at")

@@ -19,8 +19,10 @@ namespace Authentication.API.Controllers {
             if (!result.Success) {
                 if (result.IsInactive)
                     return Forbid();
+                else if (result.EmailNotConfirmed)
+                    return Forbid();
 
-                return NotFound(); 
+                    return NotFound(); 
             }
 
             return Ok(result.Response);

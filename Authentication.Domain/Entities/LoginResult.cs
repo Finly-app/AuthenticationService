@@ -3,5 +3,6 @@
 public class LoginResult {
     public bool Success { get; set; }
     public bool IsInactive { get; set; }
+    public bool EmailNotConfirmed { get; set; }
     public LoginResponseDto Response { get; set; }
 }

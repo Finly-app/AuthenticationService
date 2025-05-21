@@ -25,6 +25,9 @@ namespace Authentication.Application.Services {
             if (!user.Active)
                 return new LoginResult { Success = false, IsInactive = true };
 
+            if (!user.EmailConfirmed)
+                return new LoginResult { Success = false, EmailNotConfirmed = true };
+
             bool verified = PasswordHasher.Verify(request.Password, user.Password);
 
             if (!verified)

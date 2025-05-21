@@ -4,15 +4,25 @@
         public string Username { get; private set; }
         public string Password { get; private set; }
         public string Email { get; private set; }
+        public bool EmailConfirmed { get; private set; }
+
         public bool Active { get; private set; }
         public DateTime? DeactivatedAt { get; private set; }
 
-        public User(Guid Id, string username, string password, string email) { 
-            Id = Id;
+        public User(Guid id, string username, string password, string email) {
+            Id = id;
             Username = username;
             Password = password;
             Email = email;
             Active = true;
+            EmailConfirmed = false;
         }
+
+        public void ConfirmEmail() {
+            if (!EmailConfirmed) {
+                EmailConfirmed = true;
+            }
+        }
+
     }
 }

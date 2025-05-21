@@ -15,6 +15,15 @@ namespace Authentication.Persistance.Repositories {
             await _context.SaveChangesAsync();
         }
 
+        public async Task<User> FindByIdAsync(Guid id) {
+            return await _context.Users.FindAsync(id);
+        }
+
+        public async Task UpdateUserAsync(User user) {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
         public User GetHashedPassword(string username, string email) {
             User user = _context.Users
                    .FirstOrDefault(u => u.Username == username || u.Email == email);
