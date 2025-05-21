@@ -35,6 +35,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 
+builder.Services.AddSingleton<IUserCreatedHandler, UserCreatedHandler>();
+
 builder.Services.AddHostedService<UserCreatedConsumer>();
 
 // JWT AUTHENTICATION CONFIGURATION
