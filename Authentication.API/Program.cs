@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ENVIRONMENT AND CONFIGURATION
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Release";
 var dbPassword = builder.Configuration["DB_PASSWORD"];
+var jwtSecret = builder.Configuration["JWT_SECRET"];
 
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -37,7 +38,13 @@ builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddHostedService<UserCreatedConsumer>();
 
 // JWT AUTHENTICATION CONFIGURATION
-var jwtKey = builder.Configuration["Jwt:Key"];
+
+var rawJwtKey = builder.Configuration["Jwt:Key"];
+var jwtKey = rawJwtKey?.Replace("{JWT_SECRET}", jwtSecret ?? string.Empty);
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new Exception("JWT secret is not set correctly.");
+
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
 

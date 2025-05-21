@@ -30,11 +30,18 @@ namespace Authentication.Application.Services {
             if (!verified)
                 return new LoginResult { Success = false };
 
+            string rawJwtKey = _configuration["Jwt:Key"];
+            string jwtSecret = _configuration["JWT_SECRET"];
+            string jwtKey = rawJwtKey?.Replace("{JWT_SECRET}", jwtSecret ?? string.Empty);
+
+            if (string.IsNullOrWhiteSpace(jwtKey))
+                throw new Exception("Internal Server Error");
+
             string token = TokenGenerator.GenerateToken(
                 user.Id.ToString(),
                 user.Username,
                 user.Email,
-                _configuration["Jwt:Key"],
+                jwtKey,
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"]
             );

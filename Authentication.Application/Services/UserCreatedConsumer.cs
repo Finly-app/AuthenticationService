@@ -7,22 +7,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace Authentication.Application.Services {
     public class UserCreatedConsumer : BackgroundService {
         private readonly IConsumer<Ignore, string> _consumer;
         private readonly ILogger<UserCreatedConsumer> _logger;
-        private readonly IConfiguration _configuration;
+        private readonly IConfiguration _config;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public UserCreatedConsumer(ILogger<UserCreatedConsumer> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration) {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
-            _configuration = configuration;
+            _config = configuration;
 
             var config = new ConsumerConfig {
                 GroupId = "auth-service-consumer-group",
-                BootstrapServers = _configuration["Kafka:BootstrapServers"],
+                BootstrapServers = _config["Kafka:BootstrapServers"],
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
 
@@ -33,7 +34,7 @@ namespace Authentication.Application.Services {
             _consumer.Subscribe("user-created-topic");
 
             var producerConfig = new ProducerConfig {
-                BootstrapServers = _configuration["Kafka:BootstrapServers"]
+                BootstrapServers = _config["Kafka:BootstrapServers"]
             };
             var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
 
@@ -41,6 +42,17 @@ namespace Authentication.Application.Services {
                 while (!stoppingToken.IsCancellationRequested) {
                     try {
                         var cr = _consumer.Consume(stoppingToken);
+
+                        string hmacSecret = _config["HMAC_SECRET"];
+
+                        var hmacHeader = cr.Message.Headers.FirstOrDefault(h => h.Key == "hmac")?.GetValueBytes();
+                        var receivedHmac = hmacHeader != null ? Encoding.UTF8.GetString(hmacHeader) : null;
+
+                        if (receivedHmac == null || !HmacHelper.ValidateHmac(cr.Message.Value, receivedHmac, hmacSecret)) {
+                            _logger.LogWarning("Invalid HMAC - message ignored.");
+                            continue;
+                        }
+
                         var message = JsonConvert.DeserializeObject<UserCreatedEvent>(cr.Message.Value);
                         _logger.LogInformation("Received user created event: {@Event}", message);
 
@@ -62,7 +74,13 @@ namespace Authentication.Application.Services {
                             };
 
                             var errorJson = JsonConvert.SerializeObject(errorResponse);
-                            await producer.ProduceAsync(message.ReplyTo, new Message<Null, string> { Value = errorJson });
+
+                            var errorHmac = HmacHelper.ComputeHmac(errorJson, hmacSecret);
+
+                            await producer.ProduceAsync(message.ReplyTo, new Message<Null, string> {
+                                Value = errorJson,
+                                Headers = new Headers { new Header("hmac", Encoding.UTF8.GetBytes(errorHmac)) }
+                            });
                             continue;
                         }
 
@@ -76,7 +94,13 @@ namespace Authentication.Application.Services {
                             Status = "success"
                         };
                         var responseJson = JsonConvert.SerializeObject(response);
-                        await producer.ProduceAsync(message.ReplyTo, new Message<Null, string> { Value = responseJson });
+
+                        var responseHmac = HmacHelper.ComputeHmac(responseJson, hmacSecret);
+
+                        await producer.ProduceAsync(message.ReplyTo, new Message<Null, string> {
+                            Value = responseJson,
+                            Headers = new Headers { new Header("hmac", Encoding.UTF8.GetBytes(responseHmac)) }
+                        });
 
                         _logger.LogInformation("Sent user creation response with CorrelationId {CorrelationId}", message.CorrelationId);
                     } catch (Exception ex) {
