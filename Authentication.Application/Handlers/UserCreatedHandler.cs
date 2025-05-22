@@ -39,7 +39,7 @@ public class UserCreatedHandler : IUserCreatedHandler {
             var user = new User(Guid.NewGuid(), message.Username, hashedPassword, message.Email);
             await _userRepository.CreateUserAsync(user);
 
-            await _userService.GenerateEmailConfirmationAsync(user);
+            _userService.GenerateEmailConfirmationAsync(user);
 
             response = new UserCreatedResponse {
                 CorrelationId = message.CorrelationId,
