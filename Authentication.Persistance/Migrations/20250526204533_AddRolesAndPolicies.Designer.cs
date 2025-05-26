@@ -3,6 +3,7 @@ using System;
 using Authentication.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Authentication.Persistance.Migrations
 {
     [DbContext(typeof(AuthenticationDatabaseContext))]
-    partial class AuthenticationDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250526204533_AddRolesAndPolicies")]
+    partial class AddRolesAndPolicies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,30 @@ namespace Authentication.Persistance.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Authentication.Domain.Entities.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("roles", (string)null);
+                });
 
             modelBuilder.Entity("Authentication.Domain.Entities.Token", b =>
                 {
@@ -57,6 +84,27 @@ namespace Authentication.Persistance.Migrations
                     b.ToTable("tokens", (string)null);
                 });
 
+            modelBuilder.Entity("Authentication.Domain.Entities.UserRole", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.ToTable("users_has_roles", (string)null);
+                });
+
             modelBuilder.Entity("Policy", b =>
                 {
                     b.Property<Guid>("Id")
@@ -81,30 +129,6 @@ namespace Authentication.Persistance.Migrations
                     b.ToTable("policies", (string)null);
                 });
 
-            modelBuilder.Entity("Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("roles", (string)null);
-                });
-
             modelBuilder.Entity("RolePolicy", b =>
                 {
                     b.Property<Guid>("RoleId")
@@ -122,8 +146,6 @@ namespace Authentication.Persistance.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("RoleId", "PolicyId");
-
-                    b.HasIndex("PolicyId");
 
                     b.ToTable("roles_has_policies", (string)null);
                 });
@@ -202,90 +224,25 @@ namespace Authentication.Persistance.Migrations
 
                     b.HasKey("UserId", "PolicyId");
 
-                    b.HasIndex("PolicyId");
-
                     b.ToTable("users_has_policies", (string)null);
                 });
 
-            modelBuilder.Entity("UserRole", b =>
+            modelBuilder.Entity("Authentication.Domain.Entities.UserRole", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("role_id");
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("users_has_roles", (string)null);
-                });
-
-            modelBuilder.Entity("RolePolicy", b =>
-                {
-                    b.HasOne("Policy", "Policy")
-                        .WithMany()
-                        .HasForeignKey("PolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Role", null)
-                        .WithMany("Policies")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Policy");
-                });
-
-            modelBuilder.Entity("UserPolicy", b =>
-                {
-                    b.HasOne("Policy", "Policy")
-                        .WithMany()
-                        .HasForeignKey("PolicyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("User", null)
-                        .WithMany("Policies")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Policy");
-                });
-
-            modelBuilder.Entity("UserRole", b =>
-                {
-                    b.HasOne("Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("User", null)
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Role", b =>
+            modelBuilder.Entity("UserPolicy", b =>
                 {
-                    b.Navigation("Policies");
-
-                    b.Navigation("Users");
+                    b.HasOne("User", null)
+                        .WithMany("Policies")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("User", b =>

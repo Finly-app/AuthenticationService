@@ -43,5 +43,15 @@ namespace Authentication.Persistance.Repositories {
             return result;
         }
 
+        public User GetFullUserWithRolesAndPolicies(string username, string email) {
+            return _context.Users
+                .Include(u => u.Roles)
+                    .ThenInclude(ur => ur.Role)
+                        .ThenInclude(r => r.Policies)
+                            .ThenInclude(rp => rp.Policy)
+                .Include(u => u.Policies)
+                    .ThenInclude(up => up.Policy)
+                .FirstOrDefault(u => u.Username == username || u.Email == email);
+        }
     }
 }

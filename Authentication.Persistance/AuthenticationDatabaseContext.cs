@@ -8,12 +8,23 @@ namespace Authentication.Persistance {
 
         public DbSet<Token> Tokens { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Policy> Policies { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<RolePolicy> RolePolicies { get; set; }
+        public DbSet<UserPolicy> UserPolicies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new TokenConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new PolicyConfiguration());
+            modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
+            modelBuilder.ApplyConfiguration(new RolePolicyConfiguration());
+            modelBuilder.ApplyConfiguration(new UserPolicyConfiguration());
+
         }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) {

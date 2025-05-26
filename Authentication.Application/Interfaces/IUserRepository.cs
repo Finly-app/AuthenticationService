@@ -8,6 +8,6 @@ namespace Authentication.Application.Interfaces {
 
         User GetHashedPassword(string username, string email);
         Task<UserExistenceResult> FindByEmailOrUsernameAsync(string email, string username);
-
+        User GetFullUserWithRolesAndPolicies(string? username, string? email);
     }
 }

@@ -17,7 +17,7 @@ namespace Authentication.Application.Services {
         }
 
         public LoginResult Login(LoginRequestDto request) {
-            User user = _userRepository.GetHashedPassword(request.Username, request.Email);
+            User user = _userRepository.GetFullUserWithRolesAndPolicies(request.Username, request.Email); // <- you'll need this custom method
 
             if (user == null)
                 return new LoginResult { Success = false };
@@ -40,10 +40,34 @@ namespace Authentication.Application.Services {
             if (string.IsNullOrWhiteSpace(jwtKey))
                 throw new Exception("Internal Server Error");
 
+            // Extract roles
+            var roles = user.Roles
+                            .Select(ur => ur.Role?.Name)
+                            .Where(r => !string.IsNullOrWhiteSpace(r))
+                            .ToList();
+
+            // Get policies via roles
+            var rolePolicies = user.Roles
+                .SelectMany(ur => ur.Role?.Policies ?? new List<RolePolicy>())
+                .Select(rp => rp.Policy?.Name);
+
+            // Get user-specific policies
+            var userPolicies = user.Policies
+                .Select(up => up.Policy?.Name);
+
+            // Combine and dedupe
+            var allPolicies = rolePolicies
+                .Concat(userPolicies)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Distinct()
+                .ToList();
+
             string token = TokenGenerator.GenerateToken(
                 user.Id.ToString(),
                 user.Username,
                 user.Email,
+                roles,
+                allPolicies,
                 jwtKey,
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"]
@@ -61,6 +85,7 @@ namespace Authentication.Application.Services {
                 }
             };
         }
+
 
     }
 }
