@@ -4,4 +4,5 @@
     Task CreateAsync(RoleDto dto);
     Task UpdateAsync(RoleDto dto);
     Task DeleteAsync(Guid id);
+    Task<bool> AssignPoliciesToRoleAsync(Guid roleId, List<Guid> policyIds);
 }

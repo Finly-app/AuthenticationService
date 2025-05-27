@@ -8,6 +8,10 @@ namespace Authentication.Application.Services {
             _roleRepository = roleRepository;
         }
 
+        public async Task<bool> AssignPoliciesToRoleAsync(Guid roleId, List<Guid> policyIds) {
+            return await _roleRepository.AssignPoliciesToRoleAsync(roleId, policyIds);
+        }
+
         public async Task CreateAsync(RoleDto roleDto) {
             var role = roleDto.ToEntity();
             await _roleRepository.CreateAsync(role);

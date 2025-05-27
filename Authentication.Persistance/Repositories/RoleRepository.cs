@@ -40,5 +40,27 @@ namespace Authentication.Persistance.Repositories {
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> AssignPoliciesToRoleAsync(Guid roleId, List<Guid> policyIds) {
+            var role = await _context.Roles
+                .Include(r => r.Policies)
+                .FirstOrDefaultAsync(r => r.Id == roleId);
+
+            if (role == null)
+                return false;
+
+            var validPolicies = await _context.Policies
+                .Where(p => policyIds.Contains(p.Id))
+                .ToListAsync();
+
+            if (validPolicies.Count != policyIds.Count)
+                return false; 
+
+            foreach (var policy in validPolicies) {
+                _context.RolePolicies.Add(new RolePolicy(role.Id, policy.Id));
+            }
+
+            return await _context.SaveChangesAsync() > 0;
+        }
     }
 }

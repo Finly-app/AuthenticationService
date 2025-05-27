@@ -35,4 +35,10 @@ public class RoleController : ControllerBase {
         await _roleService.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpPost("{roleId}/policies")]
+    public async Task<IActionResult> AssignPoliciesToRole(Guid roleId, [FromBody] AssignPoliciesToRoleDto dto) {
+        var success = await _roleService.AssignPoliciesToRoleAsync(roleId, dto.PolicyIds);
+        return success ? Ok() : NotFound();
+    }
 }
