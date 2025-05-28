@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Authentication.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("roles")]
 public class RoleController : ControllerBase {
     private readonly IRoleService _roleService;
+
     public RoleController(IRoleService roleService) {
         _roleService = roleService;
     }
+
     //TODO: Improve controller with FROM BOdy, look at user service
     [HttpGet]
     public async Task<IActionResult> Get() => Ok(await _roleService.GetAllAsync());
@@ -40,5 +43,35 @@ public class RoleController : ControllerBase {
     public async Task<IActionResult> AssignPoliciesToRole(Guid roleId, [FromBody] AssignPoliciesToRoleDto dto) {
         var success = await _roleService.AssignPoliciesToRoleAsync(roleId, dto.PolicyIds);
         return success ? Ok() : NotFound();
+    }
+
+    [HttpGet("{roleId}/policies/inherited")]
+    public async Task<IActionResult> GetInheritedPolicies(Guid roleId) {
+        var policies = await _roleService.GetAllInheritedPoliciesAsync(roleId);
+        return Ok(policies);
+    }
+
+    [HttpGet("{roleId}/policies")]
+    public async Task<IActionResult> GetRolePolicies(Guid roleId) {
+        var policies = await _roleService.GetRolePoliciesAsync(roleId);
+        return Ok(policies);
+    }
+
+    [HttpPost("inheritance")]
+    public async Task<IActionResult> CreateRoleInheritance([FromBody] CreateRoleInheritanceDto dto) {
+        var success = await _roleService.CreateRoleInheritanceAsync(dto.ParentRoleId, dto.ChildRoleId);
+        return success ? Ok() : BadRequest("Invalid or circular link.");
+    }
+
+    [HttpGet("{roleId}/tree")]
+    public async Task<IActionResult> GetRoleTree(Guid roleId) {
+        var tree = await _roleService.GetRoleTreeAsync(roleId);
+        return tree == null ? NotFound() : Ok(tree);
+    }
+
+    [HttpDelete("{roleId}/policies/{policyId}")]
+    public async Task<IActionResult> RemovePolicyFromRole(Guid roleId, Guid policyId) {
+        var success = await _roleService.RemovePolicyFromRoleAsync(roleId, policyId);
+        return success ? NoContent() : NotFound();
     }
 }

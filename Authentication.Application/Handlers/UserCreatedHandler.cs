@@ -19,6 +19,7 @@ public class UserCreatedHandler : IUserCreatedHandler {
         using var scope = _scopeFactory.CreateScope();
         var _userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
         var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+        var _roleService = scope.ServiceProvider.GetRequiredService<IRoleService>();
 
         var existence = await _userRepository.FindByEmailOrUsernameAsync(message.Email, message.Username);
         UserCreatedResponse response;
@@ -36,7 +37,11 @@ public class UserCreatedHandler : IUserCreatedHandler {
             };
         } else {
             var hashedPassword = PasswordHasher.Hash(message.Password);
-            var user = new User(Guid.NewGuid(), message.Username, hashedPassword, message.Email);
+            var defaultRole = await _roleService.GetByIdAsync(Guid.Parse("a191243f-1149-4b19-a66c-96541dc2deff"));
+            if (defaultRole == null)
+                throw new Exception("Default role 'User' not found.");
+
+            var user = new User(Guid.NewGuid(), message.Username, hashedPassword, message.Email, defaultRole.Id);
             await _userRepository.CreateUserAsync(user);
 
             _userService.GenerateEmailConfirmationAsync(user);

@@ -34,6 +34,15 @@ namespace Authentication.Persistance.Configurations {
             builder.Property(u => u.EmailConfirmed)
                    .HasColumnName("email_confirmed");
 
+            builder.Property(u => u.RoleId)
+                   .HasColumnName("role_id")
+                   .HasColumnType("uuid");
+
+            builder.HasOne(u => u.Role)
+                   .WithMany(r => r.Users)
+                   .HasForeignKey(u => u.RoleId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
             builder.Property(u => u.Active)
                    .HasColumnName("active");
 

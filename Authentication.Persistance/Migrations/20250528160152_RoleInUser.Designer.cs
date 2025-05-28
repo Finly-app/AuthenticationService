@@ -3,6 +3,7 @@ using System;
 using Authentication.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Authentication.Persistance.Migrations
 {
     [DbContext(typeof(AuthenticationDatabaseContext))]
-    partial class AuthenticationDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250528160152_RoleInUser")]
+    partial class RoleInUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,28 +82,6 @@ namespace Authentication.Persistance.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("policies", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("3fbed1fd-75e7-42a9-b017-8a2be84c81f1"),
-                            Name = "users:read"
-                        },
-                        new
-                        {
-                            Id = new Guid("9a308869-5e11-4480-916b-cef3908797dc"),
-                            Name = "users:create"
-                        },
-                        new
-                        {
-                            Id = new Guid("cdd60f4c-521f-4a45-8b87-1b84b69d49c1"),
-                            Name = "users:update"
-                        },
-                        new
-                        {
-                            Id = new Guid("321aa912-e34e-4f41-9dbf-f5f61a3951f2"),
-                            Name = "users:delete"
-                        });
                 });
 
             modelBuilder.Entity("Role", b =>
@@ -130,28 +111,13 @@ namespace Authentication.Persistance.Migrations
                         new
                         {
                             Id = new Guid("c0cc1b7f-2705-49b9-b746-75a8dac9861d"),
-                            Name = "SuperAdmin"
+                            Name = "Admin"
                         },
                         new
                         {
                             Id = new Guid("a191243f-1149-4b19-a66c-96541dc2deff"),
                             Name = "User"
                         });
-                });
-
-            modelBuilder.Entity("RoleInheritance", b =>
-                {
-                    b.Property<Guid>("ChildRoleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ParentRoleId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ChildRoleId", "ParentRoleId");
-
-                    b.HasIndex("ParentRoleId");
-
-                    b.ToTable("role_inheritance", (string)null);
                 });
 
             modelBuilder.Entity("RolePolicy", b =>
@@ -260,25 +226,6 @@ namespace Authentication.Persistance.Migrations
                     b.HasIndex("PolicyId");
 
                     b.ToTable("users_has_policies", (string)null);
-                });
-
-            modelBuilder.Entity("RoleInheritance", b =>
-                {
-                    b.HasOne("Role", "ChildRole")
-                        .WithMany()
-                        .HasForeignKey("ChildRoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Role", "ParentRole")
-                        .WithMany()
-                        .HasForeignKey("ParentRoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ChildRole");
-
-                    b.Navigation("ParentRole");
                 });
 
             modelBuilder.Entity("RolePolicy", b =>

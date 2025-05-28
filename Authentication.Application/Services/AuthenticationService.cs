@@ -9,11 +9,13 @@ namespace Authentication.Application.Services {
         private readonly ITokenRepository _tokenRepository;
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IRoleService _roleService;
 
-        public AuthenticationService(ITokenRepository tokenRepository, IUserRepository userRepository, IConfiguration configuration) {
+        public AuthenticationService(ITokenRepository tokenRepository, IUserRepository userRepository, IConfiguration configuration, IRoleService roleService) {
             _tokenRepository = tokenRepository;
             _userRepository = userRepository;
             _configuration = configuration;
+            _roleService = roleService;
         }
 
         public LoginResult Login(LoginRequestDto request) {
@@ -40,22 +42,17 @@ namespace Authentication.Application.Services {
             if (string.IsNullOrWhiteSpace(jwtKey))
                 throw new Exception("Internal Server Error");
 
-            // Extract roles
-            var roles = user.Roles
-                            .Select(ur => ur.Role?.Name)
-                            .Where(r => !string.IsNullOrWhiteSpace(r))
-                            .ToList();
+            var roles = user.Role != null
+                 ? new List<string> { user.Role.Name }
+                 : new List<string>();
 
-            // Get policies via roles
-            var rolePolicies = user.Roles
-                .SelectMany(ur => ur.Role?.Policies ?? new List<RolePolicy>())
-                .Select(rp => rp.Policy?.Name);
+            var rolePolicies = user.RoleId != Guid.Empty
+                 ? _roleService.GetAllPoliciesForRoleAndInherited(user.RoleId).Select(p => p.Name)
+                 : Enumerable.Empty<string>();
 
-            // Get user-specific policies
             var userPolicies = user.Policies
                 .Select(up => up.Policy?.Name);
 
-            // Combine and dedupe
             var allPolicies = rolePolicies
                 .Concat(userPolicies)
                 .Where(p => !string.IsNullOrWhiteSpace(p))

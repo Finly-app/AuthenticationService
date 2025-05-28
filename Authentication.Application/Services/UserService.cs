@@ -1,14 +1,24 @@
 ﻿using Authentication.Application.Interfaces;
-using Authentication.Domain.Entities;
+using Authentication.Mapping;
 using MailKit.Net.Smtp;
 using MimeKit;
 
 namespace Authentication.Application.Services {
     public class UserService : IUserService {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleService _roleService;
 
-        public UserService(IUserRepository userRepository) {
+        public UserService(IUserRepository userRepository, IRoleService roleService) {
             _userRepository = userRepository;
+            _roleService = roleService;
+        }
+
+        public async Task<bool> AssignRoleToUserAsync(Guid userId, Guid roleId) {
+            return await _userRepository.AssignRoleToUserAsync(userId, roleId);
+        }
+
+        public async Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds) {
+            return await _userRepository.AssignUserPoliciesAsync(userId, policyIds);
         }
 
         public async Task<User> FindByIdAsync(Guid userId) {
@@ -35,8 +45,47 @@ namespace Authentication.Application.Services {
             await smtp.DisconnectAsync(true);
         }
 
+        public async Task<List<PolicyDto>> GetUserPoliciesAsync(Guid userId) {
+            var user = await _userRepository.GetUserWithPoliciesAndRoleAsync(userId);
+            if (user == null) return new();
+
+            // Direct user policies
+            var userPolicies = user.Policies
+                .Select(up => up.Policy)
+                .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+                .ToList();
+
+            // Role & inherited policies
+            var rolePolicies = new List<Policy>();
+            if (user.RoleId != Guid.Empty)
+                rolePolicies = await _roleService.GetAllPoliciesForRoleAndInheritedAsync(user.RoleId);
+
+            var allPolicies = userPolicies
+                .Concat(rolePolicies)
+                .DistinctBy(p => p.Id)
+                .ToList();
+
+            return allPolicies.Select(p => new PolicyDto {
+                Id = p.Id,
+                Name = p.Name
+            }).ToList();
+        }
+
+        public async Task<RoleDto?> GetUserRoleAsync(Guid userId) {
+            var userRole = await _userRepository.GetUserRoleAsync(userId);
+            return userRole;
+        }
+
+        public async Task<bool> RemoveUserPolicyAsync(Guid userId, Guid policyId) {
+            return await _userRepository.RemoveUserPolicyAsync(userId, policyId);
+        }
+
         public async Task UpdateUserAsync(User user) {
             await _userRepository.UpdateUserAsync(user);
+        }
+
+        public async Task<bool> UpdateUserRoleAsync(Guid userId, Guid roleId) {
+            return await _userRepository.UpdateUserRoleAsync(userId, roleId);
         }
     }
 }

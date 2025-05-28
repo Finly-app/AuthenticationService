@@ -9,8 +9,18 @@ namespace Authentication.Application.Services {
             _policyRepository = policyRepository;
         }
 
+        public async Task BulkCreatePolicies(BulkPolicyCreateDto dto) {
+            List<Policy> policies = dto.PolicyNames
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => new Policy(Guid.NewGuid(), name))
+                .ToList();
+
+            await _policyRepository.BulkCreatePolicies(policies);
+        }
+
+
         public async Task CreateAsync(PolicyDto policyDto) {
-            var policy = policyDto.ToEntity();
+            var policy = policyDto.ToPolicyEntity();
             await _policyRepository.CreateAsync(policy);
         }
 
@@ -20,16 +30,16 @@ namespace Authentication.Application.Services {
 
         public async Task<IEnumerable<PolicyDto>> GetAllAsync() {
             var policys = await _policyRepository.GetAllAsync();
-            return policys.Select(u => u.ToDto()).ToList();
+            return policys.Select(u => u.ToPolicyDto()).ToList();
         }
 
         public async Task<PolicyDto> GetByIdAsync(Guid id) {
             var policy = await _policyRepository.GetByIdAsync(id);
-            return policy.ToDto();
+            return policy.ToPolicyDto();
         }
 
         public async Task UpdateAsync(PolicyDto policyDto) {
-            var policy = policyDto.ToEntity();
+            var policy = policyDto.ToPolicyEntity();
             await _policyRepository.UpdateAsync(policy);
         }
     }

@@ -9,14 +9,17 @@ public class User : Auditable {
     public bool Active { get; private set; }
     public DateTime? DeactivatedAt { get; private set; }
 
-    public ICollection<UserRole> Roles { get; private set; } = new List<UserRole>();
+    public Guid RoleId { get; private set; }
+    public Role Role { get; private set; }
+
     public ICollection<UserPolicy> Policies { get; private set; } = new List<UserPolicy>();
 
-    public User(Guid id, string username, string password, string email) {
+    public User(Guid id, string username, string password, string email, Guid roleId) {
         Id = id;
         Username = username;
         Password = password;
         Email = email;
+        RoleId = roleId;
         Active = true;
         EmailConfirmed = false;
     }
@@ -26,4 +29,9 @@ public class User : Auditable {
             EmailConfirmed = true;
         }
     }
+
+    public void AssignRole(Guid roleId) {
+        RoleId = roleId;
+    }
+
 }

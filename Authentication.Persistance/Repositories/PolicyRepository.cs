@@ -9,6 +9,11 @@ namespace Authentication.Persistance.Repositories {
             _context = context;
         }
 
+        public async Task BulkCreatePolicies(List<Policy> policies) {
+            _context.Policies.AddRange(policies);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task CreateAsync(Policy policy) {
             _context.Policies.Add(policy);
             await _context.SaveChangesAsync();

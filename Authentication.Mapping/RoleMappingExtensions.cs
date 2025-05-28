@@ -1,6 +1,6 @@
 ﻿namespace Authentication.Mapping {
     public static class RoleMappingExtensions {
-        public static RoleDto ToDto(this Role role) {
+        public static RoleDto ToRoleDto(this Role role) {
             if (role == null) return null;
 
             return new RoleDto {
@@ -9,7 +9,7 @@
             };
         }
 
-        public static Role ToEntity(this RoleDto roleDto) {
+        public static Role ToRoleEntity(this RoleDto roleDto) {
             if (roleDto == null) return null;
 
             return new Role(roleDto.Id, roleDto.Name);

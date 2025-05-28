@@ -4,7 +4,7 @@ public class Role : Auditable {
     public Guid Id { get; private set; }
     public string Name { get; private set; }
 
-    public ICollection<UserRole> Users { get; private set; } = new List<UserRole>();
+    public ICollection<User> Users { get; private set; } = new List<User>();
 
     public ICollection<RolePolicy> Policies { get; private set; } = new List<RolePolicy>();
 
