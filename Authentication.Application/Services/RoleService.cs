@@ -1,10 +1,12 @@
-﻿using Authentication.Mapping;
+﻿using Authentication.Application.Interfaces;
+using Authentication.Mapping;
+using Microsoft.AspNetCore.Http;
 
 namespace Authentication.Application.Services {
     public class RoleService : IRoleService {
         private readonly IRoleRepository _roleRepository;
 
-        public RoleService(IRoleRepository roleRepository) {
+        public RoleService(IRoleRepository roleRepository, IHttpContextAccessor httpContextAccessor) {
             _roleRepository = roleRepository;
         }
 

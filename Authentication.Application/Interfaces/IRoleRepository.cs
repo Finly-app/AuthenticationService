@@ -12,5 +12,4 @@
     Task<List<Policy>> GetPoliciesForRolesAsync(List<Guid> roleIds);
     Task<List<Guid>> GetAllDescendantRoleIdsAsync(Guid rootRoleId);
     Task<bool> RemovePolicyFromRoleAsync(Guid roleId, Guid policyId);
-
 }

@@ -1,21 +1,58 @@
 ﻿using Authentication.Application.Interfaces;
-using Authentication.Mapping;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Http;
 using MimeKit;
+using System.Security.Claims;
+
 
 namespace Authentication.Application.Services {
     public class UserService : IUserService {
         private readonly IUserRepository _userRepository;
         private readonly IRoleService _roleService;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public UserService(IUserRepository userRepository, IRoleService roleService) {
+        public UserService(IUserRepository userRepository, IRoleService roleService, IHttpContextAccessor contextAccessor) {
             _userRepository = userRepository;
             _roleService = roleService;
+            _contextAccessor = contextAccessor;
         }
 
+
+        private async Task<bool> CurrentUserIsSuperAdminAsync() {
+            var user = _contextAccessor.HttpContext?.User;
+            var userIdClaim = user?.FindFirst("sub")?.Value ?? user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+                return false;
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+                return false;
+
+            var role = await GetUserRoleAsync(userId);
+            return role?.Name?.Equals("SuperAdmin", StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+
         public async Task<bool> AssignRoleToUserAsync(Guid userId, Guid roleId) {
+            var role = await _roleService.GetByIdAsync(roleId);
+            if (role == null)
+                return false;
+
+            if (role.Name == "SuperAdmin") {
+                var alreadyExists = await _userRepository.SuperAdminExistsAsync();
+                if (alreadyExists)
+                    throw new InvalidOperationException("Only one SuperAdmin is allowed in the system.");
+            }
+
+            if (role.Name == "Admin") {
+                var isSuperAdmin = await CurrentUserIsSuperAdminAsync();
+                if (!isSuperAdmin)
+                    throw new UnauthorizedAccessException("Only SuperAdmins can assign Admin roles.");
+            }
+
             return await _userRepository.AssignRoleToUserAsync(userId, roleId);
         }
+
 
         public async Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds) {
             return await _userRepository.AssignUserPoliciesAsync(userId, policyIds);
@@ -40,7 +77,7 @@ namespace Authentication.Application.Services {
             // Use Ethereal SMTP server for now (dev-only)
             using var smtp = new SmtpClient();
             await smtp.ConnectAsync("smtp.ethereal.email", 587, MailKit.Security.SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync("charlotte.medhurst@ethereal.email", "GYC6cJvAtETazPCyC2"); 
+            await smtp.AuthenticateAsync("charlotte.medhurst@ethereal.email", "GYC6cJvAtETazPCyC2");
             await smtp.SendAsync(message);
             await smtp.DisconnectAsync(true);
         }
@@ -82,10 +119,6 @@ namespace Authentication.Application.Services {
 
         public async Task UpdateUserAsync(User user) {
             await _userRepository.UpdateUserAsync(user);
-        }
-
-        public async Task<bool> UpdateUserRoleAsync(Guid userId, Guid roleId) {
-            return await _userRepository.UpdateUserRoleAsync(userId, roleId);
         }
     }
 }

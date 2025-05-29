@@ -83,19 +83,6 @@ namespace Authentication.Persistance.Repositories {
                 Name = user.Role.Name
             };
         }
-        public async Task<bool> UpdateUserRoleAsync(Guid userId, Guid roleId) {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-                return false;
-
-            var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
-            if (!roleExists)
-                return false;
-
-            user.AssignRole(roleId);
-
-            return await _context.SaveChangesAsync() > 0;
-        }
 
         
         public async Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds) {
@@ -131,6 +118,12 @@ namespace Authentication.Persistance.Repositories {
                     .ThenInclude(up => up.Policy)
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
+        public async Task<bool> SuperAdminExistsAsync() {
+            return await _context.Users
+                .Include(u => u.Role)
+                .AnyAsync(u => u.Role.Name == "SuperAdmin");
         }
     }
 }

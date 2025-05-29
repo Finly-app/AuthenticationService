@@ -10,6 +10,7 @@
     <PackageReference Include="Confluent.Kafka" Version="2.10.0" />
     <PackageReference Include="Finly.Shared.Contracts" Version="1.0.19" />
     <PackageReference Include="MailKit" Version="4.12.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.10.0" />

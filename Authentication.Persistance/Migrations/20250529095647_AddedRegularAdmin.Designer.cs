@@ -3,6 +3,7 @@ using System;
 using Authentication.Persistance;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Authentication.Persistance.Migrations
 {
     [DbContext(typeof(AuthenticationDatabaseContext))]
-    partial class AuthenticationDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250529095647_AddedRegularAdmin")]
+    partial class AddedRegularAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -134,7 +137,7 @@ namespace Authentication.Persistance.Migrations
                         },
                         new
                         {
-                            Id = new Guid("33ee7453-b06c-4959-9377-badf265ee52d"),
+                            Id = new Guid("c0cc1b7f-2705-49b9-b746-75a8dba9761d"),
                             Name = "Admin"
                         },
                         new

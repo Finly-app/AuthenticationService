@@ -44,6 +44,8 @@ builder.Services.AddSingleton<IUserCreatedHandler, UserCreatedHandler>();
 
 builder.Services.AddHostedService<UserCreatedConsumer>();
 
+builder.Services.AddHttpContextAccessor();
+
 // JWT AUTHENTICATION CONFIGURATION
 
 var rawJwtKey = builder.Configuration["Jwt:Key"];
@@ -73,6 +75,23 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthorization(options => {
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("SuperAdmin"));
+
+    options.AddPolicy("Users.Read", policy =>
+        policy.RequireClaim("policy", "users:read"));
+
+    options.AddPolicy("Users.Create", policy =>
+        policy.RequireClaim("policy", "users:create"));
+
+    options.AddPolicy("Users.Delete", policy =>
+        policy.RequireClaim("policy", "users:delete"));
+
+    options.AddPolicy("Users.Update", policy =>
+        policy.RequireClaim("policy", "users:update"));
+});
+
 
 var app = builder.Build();
 
