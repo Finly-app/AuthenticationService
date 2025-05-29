@@ -22,7 +22,7 @@ public class PolicyController : ControllerBase {
         return Policy == null ? NotFound() : Ok(Policy);
     }
 
-    [Authorize(Policy = "rpolicies:create")]
+    [Authorize(Policy = "policies:create")]
     [HttpPost]
     public async Task<IActionResult> Create(PolicyDto dto) {
         await _policyService.CreateAsync(dto);
