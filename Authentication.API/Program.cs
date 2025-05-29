@@ -77,19 +77,32 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthorization(options => {
-    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("SuperAdmin"));
+    options.AddPolicy("RequireSuperAdminRole", policy => policy.RequireRole("SuperAdmin"));
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
 
-    options.AddPolicy("Users.Read", policy =>
-        policy.RequireClaim("policy", "users:read"));
+    // Roles
+    options.AddPolicy("roles:read", policy => policy.RequireClaim("policy", "roles:read"));
+    options.AddPolicy("roles:create", policy => policy.RequireClaim("policy", "roles:create"));
+    options.AddPolicy("roles:update", policy => policy.RequireClaim("policy", "roles:update"));
+    options.AddPolicy("roles:delete", policy => policy.RequireClaim("policy", "roles:delete"));
+    options.AddPolicy("roles:policies:read", policy => policy.RequireClaim("policy", "roles:policies:read"));
+    options.AddPolicy("roles:policies:assign", policy => policy.RequireClaim("policy", "roles:policies:assign"));
+    options.AddPolicy("roles:policies:remove", policy => policy.RequireClaim("policy", "roles:policies:remove"));
+    options.AddPolicy("roles:inheritance:create", policy => policy.RequireClaim("policy", "roles:inheritance:create"));
 
-    options.AddPolicy("Users.Create", policy =>
-        policy.RequireClaim("policy", "users:create"));
+    // User Roles & Policies
+    options.AddPolicy("users:roles:read", policy => policy.RequireClaim("policy", "users:roles:read"));
+    options.AddPolicy("users:roles:assign", policy => policy.RequireClaim("policy", "users:roles:assign"));
+    options.AddPolicy("users:policies:read", policy => policy.RequireClaim("policy", "users:policies:read"));
+    options.AddPolicy("users:policies:assign", policy => policy.RequireClaim("policy", "users:policies:assign"));
+    options.AddPolicy("users:policies:remove", policy => policy.RequireClaim("policy", "users:policies:remove"));
 
-    options.AddPolicy("Users.Delete", policy =>
-        policy.RequireClaim("policy", "users:delete"));
-
-    options.AddPolicy("Users.Update", policy =>
-        policy.RequireClaim("policy", "users:update"));
+    // Policies Management
+    options.AddPolicy("policies:read", policy => policy.RequireClaim("policy", "policies:read"));
+    options.AddPolicy("policies:create", policy => policy.RequireClaim("policy", "policies:create"));
+    options.AddPolicy("policies:update", policy => policy.RequireClaim("policy", "policies:update"));
+    options.AddPolicy("policies:delete", policy => policy.RequireClaim("policy", "policies:delete"));
 });
 
 

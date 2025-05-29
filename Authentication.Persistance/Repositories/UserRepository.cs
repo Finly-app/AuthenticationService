@@ -83,7 +83,6 @@ namespace Authentication.Persistance.Repositories {
                 Name = user.Role.Name
             };
         }
-
         
         public async Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds) {
             var validPolicies = await _context.Policies

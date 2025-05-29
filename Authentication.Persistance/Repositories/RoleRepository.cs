@@ -54,14 +54,22 @@ namespace Authentication.Persistance.Repositories {
                 .ToListAsync();
 
             if (validPolicies.Count != policyIds.Count)
-                return false; 
+                return false;
 
-            foreach (var policy in validPolicies) {
-                _context.RolePolicies.Add(new RolePolicy(role.Id, policy.Id));
+            var existingMappings = await _context.RolePolicies
+                .Where(rp => rp.RoleId == roleId && policyIds.Contains(rp.PolicyId))
+                .Select(rp => rp.PolicyId)
+                .ToListAsync();
+
+            var newPolicyIds = policyIds.Except(existingMappings);
+
+            foreach (var policyId in newPolicyIds) {
+                _context.RolePolicies.Add(new RolePolicy(roleId, policyId));
             }
 
             return await _context.SaveChangesAsync() > 0;
         }
+
 
         public async Task<List<Policy>> GetAllInheritedPoliciesAsync(Guid roleId) {
             var allRoleIds = await GetAllDescendantRoleIdsAsync(roleId);
