@@ -13,7 +13,7 @@ var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?
 
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.Release.json", optional: false)
+    .AddJsonFile($"appsettings.{environment}.json", optional: false)
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables();
 
