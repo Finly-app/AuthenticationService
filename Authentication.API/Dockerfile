@@ -18,6 +18,8 @@ RUN dotnet build "Authentication.API/Authentication.API.csproj" -c Release -o /a
 FROM build AS publish
 RUN dotnet publish "Authentication.API/Authentication.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
+RUN echo "----- FILES IN /app/publish -----" && ls -R /app/publish
+
 # Final runtime stage
 FROM base AS final
 WORKDIR /app
