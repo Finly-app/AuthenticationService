@@ -23,5 +23,6 @@ RUN echo "----- FILES IN /app/publish -----" && ls -R /app/publish
 # Final runtime stage
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=publish /app/publish ./
 ENTRYPOINT ["dotnet", "Authentication.API.dll"]
+
