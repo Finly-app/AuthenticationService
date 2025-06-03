@@ -10,14 +10,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ENVIRONMENT AND CONFIGURATION
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Release";
-var dbPassword = builder.Configuration["DB_PASSWORD"];
-var jwtSecret = builder.Configuration["JWT_SECRET"];
 
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
     .AddJsonFile($"appsettings.{environment}.json", optional: false)
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables();
+
+var dbPassword = builder.Configuration["DB_PASSWORD"];
+var jwtSecret = builder.Configuration["JWT_SECRET"];
 
 // DB CONNECTION
 var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");

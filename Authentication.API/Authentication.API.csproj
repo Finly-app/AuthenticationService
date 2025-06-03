@@ -26,10 +26,4 @@
 		<ProjectReference Include="..\Authentication.Application\Authentication.Application.csproj" />
 		<ProjectReference Include="..\Authentication.Persistance\Authentication.Persistance.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="appsettings*.json">
-			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-		</None>
-	</ItemGroup>
 </Project>
