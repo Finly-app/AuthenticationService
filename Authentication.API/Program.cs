@@ -14,8 +14,8 @@ var dbPassword = builder.Configuration["DB_PASSWORD"];
 var jwtSecret = builder.Configuration["JWT_SECRET"];
 
 builder.Configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: false)
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables();
 
