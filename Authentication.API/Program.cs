@@ -44,6 +44,7 @@ builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 builder.Services.AddSingleton<IUserCreatedHandler, UserCreatedHandler>();
 
 builder.Services.AddHostedService<UserCreatedConsumer>();
+builder.Services.AddHostedService<UserAuthFilterConsumer>();
 
 builder.Services.AddHttpContextAccessor();
 

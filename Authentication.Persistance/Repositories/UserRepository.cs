@@ -1,6 +1,4 @@
-﻿using Authentication.Application.Interfaces;
-using Authentication.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Authentication.Persistance.Repositories {
     public class UserRepository : IUserRepository {
@@ -83,7 +81,7 @@ namespace Authentication.Persistance.Repositories {
                 Name = user.Role.Name
             };
         }
-        
+
         public async Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds) {
             var validPolicies = await _context.Policies
                 .Where(p => policyIds.Contains(p.Id))
@@ -124,5 +122,15 @@ namespace Authentication.Persistance.Repositories {
                 .Include(u => u.Role)
                 .AnyAsync(u => u.Role.Name == "SuperAdmin");
         }
+
+        public async Task<List<User>> GetAllUsersAsync() =>
+            await _context.Users.ToListAsync();
+
+        public async Task<List<User>> GetActiveUsersAsync() =>
+            await _context.Users.Where(u => u.Active).ToListAsync();
+
+        public async Task<List<User>> GetDeactivatedUsersAsync() =>
+            await _context.Users.Where(u => !u.Active).ToListAsync();
+
     }
 }

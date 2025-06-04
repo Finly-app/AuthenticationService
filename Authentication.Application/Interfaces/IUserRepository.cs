@@ -11,5 +11,7 @@
     Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds);
     Task<bool> RemoveUserPolicyAsync(Guid userId, Guid policyId);
     Task<bool> SuperAdminExistsAsync();
-
+    Task<List<User>> GetAllUsersAsync();
+    Task<List<User>> GetActiveUsersAsync();
+    Task<List<User>> GetDeactivatedUsersAsync();
 }
