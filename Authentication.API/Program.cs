@@ -8,6 +8,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddEnvironmentVariables()
+    .AddUserSecrets<Program>();
+
 // ENVIRONMENT AND CONFIGURATION
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Release";
 
@@ -17,19 +21,23 @@ builder.Configuration
     .AddUserSecrets<Program>()
     .AddEnvironmentVariables();
 
+var host = builder.Configuration["DB_HOST"];
+var port = builder.Configuration["DB_PORT"] ?? "5432";
+var db = builder.Configuration["DB_NAME"];
+var user = builder.Configuration["DB_USER"];
 var dbPassword = builder.Configuration["DB_PASSWORD"];
-var jwtSecret = builder.Configuration["JWT_SECRET"];
+var ssl = builder.Configuration["DB_SSLMODE"] ?? "Require";
+var trust = builder.Configuration["DB_TRUST_CERT"] ?? "true";
+var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "true";
 
 // DB CONNECTION
-var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 if (string.IsNullOrWhiteSpace(dbPassword))
     throw new Exception("Environment variable DB_PASSWORD not set!");
 
-var finalConnectionString = rawConnectionString.Replace("{DB_PASSWORD}", dbPassword);
+var connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={dbPassword};SslMode={ssl};Trust Server Certificate={trust}";
 
 builder.Services.AddDbContext<AuthenticationDatabaseContext>(options =>
-    options.UseNpgsql(finalConnectionString));
+    options.UseNpgsql(connectionString));
 
 // DEPENDENCY INJECTION
 builder.Services.AddScoped<IUserRepository, UserRepository>();
