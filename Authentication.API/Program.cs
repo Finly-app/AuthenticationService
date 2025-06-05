@@ -45,6 +45,7 @@ builder.Services.AddSingleton<IUserCreatedHandler, UserCreatedHandler>();
 
 builder.Services.AddHostedService<UserCreatedConsumer>();
 builder.Services.AddHostedService<UserAuthFilterConsumer>();
+builder.Services.AddHostedService<UserAuthSingleConsumer>();
 
 builder.Services.AddHttpContextAccessor();
 
