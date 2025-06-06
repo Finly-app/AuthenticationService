@@ -34,7 +34,9 @@ var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "true";
 if (string.IsNullOrWhiteSpace(dbPassword))
     throw new Exception("Environment variable DB_PASSWORD not set!");
 
-var connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={dbPassword};SslMode={ssl};Trust Server Certificate={trust}";
+//var connectionString = $"Host={host};Port={port};Database={db};User Id={user};Password={dbPassword};SslMode={ssl};Trust Server Certificate={trust};";
+
+var connectionString = "User Id=postgres.yqffjelgjtakhwaobuiu;Password=reVOYaRDAtENbeDefruC;Server=aws-0-eu-central-1.pooler.supabase.com;Port=5432;Database=postgres";
 
 builder.Services.AddDbContext<AuthenticationDatabaseContext>(options =>
     options.UseNpgsql(connectionString));
