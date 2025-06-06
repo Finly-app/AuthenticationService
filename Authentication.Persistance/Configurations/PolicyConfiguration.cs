@@ -19,10 +19,12 @@ public class PolicyConfiguration : IEntityTypeConfiguration<Policy> {
         builder.HasData(
             // Users
             new Policy(Guid.Parse("3fbed1fd-75e7-42a9-b017-8a2be84c81f1"), "users:read"),
-            new Policy(Guid.Parse("2666478b-d202-412e-b166-392499b06c95"), "users:read:all"),
+            new Policy(Guid.Parse("2666478b-d202-412e-b166-392499b06c95"), "users:read:me"),
             new Policy(Guid.Parse("9a308869-5e11-4480-916b-cef3908797dc"), "users:create"),
             new Policy(Guid.Parse("cdd60f4c-521f-4a45-8b87-1b84b69d49c1"), "users:update"),
+            new Policy(Guid.Parse("d0f61701-de19-4e1e-bea9-dd434d4e982c"), "users:update:me"),
             new Policy(Guid.Parse("321aa912-e34e-4f41-9dbf-f5f61a3951f2"), "users:delete"),
+            new Policy(Guid.Parse("d54a78a0-0387-43fd-9fe9-c1defca482e1"), "users:delete:me"),
 
             // Roles
             new Policy(Guid.Parse("a10b5c92-3e9b-4d8a-bf01-19d3f9b6f111"), "roles:read"),

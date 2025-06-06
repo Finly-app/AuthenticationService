@@ -28,13 +28,13 @@ var user = builder.Configuration["DB_USER"];
 var dbPassword = builder.Configuration["DB_PASSWORD"];
 var ssl = builder.Configuration["DB_SSLMODE"] ?? "Require";
 var trust = builder.Configuration["DB_TRUST_CERT"] ?? "true";
-var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "true";
+var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "";
 
 // DB CONNECTION
 if (string.IsNullOrWhiteSpace(dbPassword))
     throw new Exception("Environment variable DB_PASSWORD not set!");
 
-//var connectionString = $"Host={host};Port={port};Database={db};User Id={user};Password={dbPassword};SslMode={ssl};Trust Server Certificate={trust};";
+//var connectionString = $"User Id={user};Password={dbPassword};Server={host};Port={port};Database={db};";
 
 var connectionString = "User Id=postgres.yqffjelgjtakhwaobuiu;Password=reVOYaRDAtENbeDefruC;Server=aws-0-eu-central-1.pooler.supabase.com;Port=5432;Database=postgres";
 
