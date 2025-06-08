@@ -8,7 +8,7 @@ public class User : Auditable {
     public bool EmailConfirmed { get; private set; }
     public bool Active { get; private set; }
     public DateTime? DeactivatedAt { get; private set; }
-
+    public bool Deleted { get; private set; }
     public Guid RoleId { get; private set; }
     public Role Role { get; private set; }
 
@@ -22,6 +22,7 @@ public class User : Auditable {
         RoleId = roleId;
         Active = true;
         EmailConfirmed = false;
+        Deleted = false;
     }
 
     public void ConfirmEmail() {
@@ -44,5 +45,14 @@ public class User : Auditable {
         if (!string.IsNullOrWhiteSpace(email) && email != Email) {
             Email = email;
         }
+    }
+
+    public void Delete() {
+        Deleted = true;
+    }
+
+    public void Deactivate() {
+        Active = false;
+        DeactivatedAt = DateTime.UtcNow;
     }
 }

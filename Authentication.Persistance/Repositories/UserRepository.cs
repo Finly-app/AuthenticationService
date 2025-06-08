@@ -124,13 +124,12 @@ namespace Authentication.Persistance.Repositories {
         }
 
         public async Task<List<User>> GetAllUsersAsync() =>
-            await _context.Users.ToListAsync();
+            await _context.Users.Where(u => !u.Deleted).ToListAsync();
 
         public async Task<List<User>> GetActiveUsersAsync() =>
-            await _context.Users.Where(u => u.Active).ToListAsync();
+            await _context.Users.Where(u => u.Active && !u.Deleted).ToListAsync();
 
         public async Task<List<User>> GetDeactivatedUsersAsync() =>
-            await _context.Users.Where(u => !u.Active).ToListAsync();
-
+            await _context.Users.Where(u => !u.Active && !u.Deleted).ToListAsync();
     }
 }

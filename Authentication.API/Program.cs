@@ -34,9 +34,7 @@ var jwtSecret = builder.Configuration["JWT_SECRET"] ?? "";
 if (string.IsNullOrWhiteSpace(dbPassword))
     throw new Exception("Environment variable DB_PASSWORD not set!");
 
-//var connectionString = $"User Id={user};Password={dbPassword};Server={host};Port={port};Database={db};";
-
-var connectionString = "User Id=postgres.yqffjelgjtakhwaobuiu;Password=reVOYaRDAtENbeDefruC;Server=aws-0-eu-central-1.pooler.supabase.com;Port=5432;Database=postgres";
+var connectionString = $"User Id={user};Password={dbPassword};Server={host};Port={port};Database={db};";
 
 builder.Services.AddDbContext<AuthenticationDatabaseContext>(options =>
     options.UseNpgsql(connectionString));
@@ -51,9 +49,13 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 
+builder.Services.AddSingleton<IUserUpdatedHandler, UserUpdatedHandler>();
 builder.Services.AddSingleton<IUserCreatedHandler, UserCreatedHandler>();
+builder.Services.AddSingleton<IUserDeletedHandler, UserDeletedHandler>();
 
 builder.Services.AddHostedService<UserCreatedConsumer>();
+builder.Services.AddHostedService<UserUpdatedConsumer>();
+builder.Services.AddHostedService<UserDeletedConsumer>();
 builder.Services.AddHostedService<UserAuthFilterConsumer>();
 builder.Services.AddHostedService<UserAuthSingleConsumer>();
 

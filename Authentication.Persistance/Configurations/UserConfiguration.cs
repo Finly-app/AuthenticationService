@@ -34,6 +34,10 @@ namespace Authentication.Persistance.Configurations {
             builder.Property(u => u.EmailConfirmed)
                    .HasColumnName("email_confirmed");
 
+            builder.Property(u => u.Deleted)
+                   .HasColumnName("deleted")
+                   .HasDefaultValue(false);
+
             builder.Property(u => u.RoleId)
                    .HasColumnName("role_id")
                    .HasColumnType("uuid");

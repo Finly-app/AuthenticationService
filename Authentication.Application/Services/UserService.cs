@@ -63,7 +63,7 @@ namespace Authentication.Application.Services {
         }
 
         public async Task GenerateEmailConfirmationAsync(User user) {
-            var confirmationLink = $"http://localhost:8000/confirm?userId={user.Id}"; // For now the gateway
+            var confirmationLink = $"http://localhost:8000/confirm?userId={user.Id}"; // Replace with actual domain if needed
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Finly", "no-reply@finly.com"));
@@ -74,10 +74,10 @@ namespace Authentication.Application.Services {
                 Text = $"<p>Click the link to confirm your email:</p><a href='{confirmationLink}'>{confirmationLink}</a>"
             };
 
-            // Use Ethereal SMTP server for now (dev-only)
             using var smtp = new SmtpClient();
-            await smtp.ConnectAsync("smtp.ethereal.email", 587, MailKit.Security.SecureSocketOptions.StartTls);
-            await smtp.AuthenticateAsync("charlotte.medhurst@ethereal.email", "GYC6cJvAtETazPCyC2");
+            // Connect to MailHog (host: mailhog, port: 1025)
+            await smtp.ConnectAsync("localhost", 1025, MailKit.Security.SecureSocketOptions.None);
+            // No authentication required for MailHog
             await smtp.SendAsync(message);
             await smtp.DisconnectAsync(true);
         }
