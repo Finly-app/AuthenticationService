@@ -34,4 +34,15 @@ public class User : Auditable {
         RoleId = roleId;
     }
 
+    public void UpdateUsername(string username) {
+        if (!string.IsNullOrWhiteSpace(username) && username != Username) {
+            Username = username;
+        }
+    }
+
+    public void UpdateEmail(string email) {
+        if (!string.IsNullOrWhiteSpace(email) && email != Email) {
+            Email = email;
+        }
+    }
 }
