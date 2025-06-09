@@ -49,10 +49,14 @@ public class UserAuthFilterConsumer : BackgroundService {
                     var repo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
 
                     List<User> users = request.Filter switch {
-                        "active" => await repo.GetActiveUsersAsync(),
+                        "active" => await repo.GetActiveUsersAsync(), 
                         "deactive" => await repo.GetDeactivatedUsersAsync(),
+                        "active_with_deleted" => await repo.GetActiveUsersWithDeletedAsync(),
+                        "deactive_with_deleted" => await repo.GetDeactivatedUsersWithDeletedAsync(),
+                        "all_with_deleted" => await repo.GetAllUsersWithDeletedAsync(),
                         _ => await repo.GetAllUsersAsync()
                     };
+
 
                     var response = new UserAuthInfoResponse {
                         CorrelationId = request.CorrelationId,
@@ -61,7 +65,8 @@ public class UserAuthFilterConsumer : BackgroundService {
                             Username = u.Username,
                             Email = u.Email,
                             EmailConfirmed = u.EmailConfirmed,
-                            Active = u.Active
+                            Active = u.Active,
+                            Deleted = u.Deleted
                         }).ToList()
                     };
 

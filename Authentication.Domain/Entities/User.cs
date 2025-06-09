@@ -55,4 +55,11 @@ public class User : Auditable {
         Active = false;
         DeactivatedAt = DateTime.UtcNow;
     }
+
+    public void Activate() {
+        if (!Active) {
+            Active = true;
+            DeactivatedAt = null;
+        }
+    }
 }

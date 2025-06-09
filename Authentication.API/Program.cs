@@ -107,6 +107,7 @@ builder.Services.AddAuthorization(options => {
     options.AddPolicy("roles:inheritance:create", policy => policy.RequireClaim("policy", "roles:inheritance:create"));
 
     // User Roles & Policies
+    options.AddPolicy("users:update", policy => policy.RequireClaim("policy", "users:update"));
     options.AddPolicy("users:roles:read", policy => policy.RequireClaim("policy", "users:roles:read"));
     options.AddPolicy("users:roles:assign", policy => policy.RequireClaim("policy", "users:roles:assign"));
     options.AddPolicy("users:policies:read", policy => policy.RequireClaim("policy", "users:policies:read"));

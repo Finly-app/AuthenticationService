@@ -14,4 +14,7 @@
     Task<List<User>> GetAllUsersAsync();
     Task<List<User>> GetActiveUsersAsync();
     Task<List<User>> GetDeactivatedUsersAsync();
+    Task<List<User>> GetActiveUsersWithDeletedAsync();
+    Task<List<User>> GetDeactivatedUsersWithDeletedAsync();
+    Task<List<User>> GetAllUsersWithDeletedAsync();
 }

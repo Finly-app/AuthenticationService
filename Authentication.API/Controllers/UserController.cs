@@ -42,4 +42,18 @@ public class UserController : Controller {
         var success = await _userService.RemoveUserPolicyAsync(userId, policyId);
         return success ? NotFound() : NoContent();
     }
+
+    [Authorize(Policy = "users:update")]
+    [HttpPut("{userId}/deactivate")]
+    public async Task<IActionResult> DeactivateUser(Guid userId) {
+        var result = await _userService.DeactivateUserAsync(userId);
+        return result ? Ok() : NotFound();
+    }
+
+    [Authorize(Policy = "users:update")]
+    [HttpPut("{userId}/activate")]
+    public async Task<IActionResult> ActivateUser(Guid userId) {
+        var result = await _userService.ActivateUserAsync(userId);
+        return result ? Ok() : NotFound();
+    }
 }

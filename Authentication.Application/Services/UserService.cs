@@ -120,5 +120,25 @@ namespace Authentication.Application.Services {
         public async Task UpdateUserAsync(User user) {
             await _userRepository.UpdateUserAsync(user);
         }
+
+        public async Task<bool> ActivateUserAsync(Guid userId) {
+            var user = await _userRepository.FindByIdAsync(userId);
+            if (user == null || user.Active || user.Deleted)
+                return false;
+
+            user.Activate();
+            await _userRepository.UpdateUserAsync(user);
+            return true;
+        }
+
+        public async Task<bool> DeactivateUserAsync(Guid userId) {
+            var user = await _userRepository.FindByIdAsync(userId);
+            if (user == null || !user.Active || user.Deleted)
+                return false;
+
+            user.Deactivate();
+            await _userRepository.UpdateUserAsync(user);
+            return true;
+        }
     }
 }

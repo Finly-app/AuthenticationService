@@ -10,6 +10,7 @@ namespace Authentication.Application.Interfaces {
         Task<List<PolicyDto>> GetUserPoliciesAsync(Guid userId);
         Task<bool> AssignUserPoliciesAsync(Guid userId, List<Guid> policyIds);
         Task<bool> RemoveUserPolicyAsync(Guid userId, Guid policyId);
-
+        Task<bool> DeactivateUserAsync(Guid userId);
+        Task<bool> ActivateUserAsync(Guid userId);
     }
 }
