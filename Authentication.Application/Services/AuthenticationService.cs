@@ -19,7 +19,16 @@ namespace Authentication.Application.Services {
         }
 
         public LoginResult Login(LoginRequestDto request) {
-            User user = _userRepository.GetFullUserWithRolesAndPolicies(request.Username, request.Email); // <- you'll need this custom method
+            // 🔹 Determine whether to use email or username
+            string username = request.Username;
+            string email = null;
+
+            if (!string.IsNullOrWhiteSpace(username) && username.Contains("@")) {
+                email = username;
+                username = null;
+            }
+
+            User user = _userRepository.GetFullUserWithRolesAndPolicies(username, email);
 
             if (user == null)
                 return new LoginResult { Success = false };
@@ -43,12 +52,12 @@ namespace Authentication.Application.Services {
                 throw new Exception("Internal Server Error");
 
             var roles = user.Role != null
-                 ? new List<string> { user.Role.Name }
-                 : new List<string>();
+                ? new List<string> { user.Role.Name }
+                : new List<string>();
 
             var rolePolicies = user.RoleId != Guid.Empty
-                 ? _roleService.GetAllPoliciesForRoleAndInherited(user.RoleId).Select(p => p.Name)
-                 : Enumerable.Empty<string>();
+                ? _roleService.GetAllPoliciesForRoleAndInherited(user.RoleId).Select(p => p.Name)
+                : Enumerable.Empty<string>();
 
             var userPolicies = user.Policies
                 .Select(up => up.Policy?.Name);
@@ -82,7 +91,5 @@ namespace Authentication.Application.Services {
                 }
             };
         }
-
-
     }
 }
