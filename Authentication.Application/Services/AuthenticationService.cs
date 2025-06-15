@@ -3,6 +3,7 @@ using Authentication.Application.Security;
 using Authentication.Domain.DTOs;
 using Authentication.Domain.Entities;
 using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace Authentication.Application.Services {
     public class AuthenticationService : IAuthenticationService {
@@ -44,7 +45,7 @@ namespace Authentication.Application.Services {
             if (!verified)
                 return new LoginResult { Success = false };
 
-            string rawJwtKey = _configuration["Jwt:Key"];
+            string rawJwtKey = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]).ToString();
             string jwtSecret = _configuration["JWT_SECRET"];
             string jwtKey = rawJwtKey?.Replace("{JWT_SECRET}", jwtSecret ?? string.Empty);
 
