@@ -11,7 +11,9 @@ namespace Authentication.Persistance.Configurations {
 
             builder.Property(u => u.Id)
                    .HasColumnName("id")
-                   .HasColumnType("uuid");
+                   .HasColumnType("uuid")
+                   .HasDefaultValueSql("gen_random_uuid()")
+                   .ValueGeneratedOnAdd();
 
             builder.HasIndex(u => u.Username)
                    .IsUnique();
@@ -33,6 +35,14 @@ namespace Authentication.Persistance.Configurations {
 
             builder.Property(u => u.EmailConfirmed)
                    .HasColumnName("email_confirmed");
+
+            builder.Property(u => u.TwoFactorSecret)
+                   .HasColumnName("two_factor_secret")
+                   .HasMaxLength(100);
+
+            builder.Property(u => u.TwoFactorEnabled)
+                   .HasColumnName("two_factor_enabled");
+
 
             builder.Property(u => u.Deleted)
                    .HasColumnName("deleted")

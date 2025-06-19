@@ -3,5 +3,6 @@
 namespace Authentication.Application.Interfaces {
     public interface IAuthenticationService {
         LoginResult Login(LoginRequestDto request);
+        Task<RegisterResult> RegisterAsync(RegisterRequestDto request);
     }
 }

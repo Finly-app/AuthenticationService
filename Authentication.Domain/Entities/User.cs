@@ -6,6 +6,8 @@ public class User : Auditable {
     public string Password { get; private set; }
     public string Email { get; private set; }
     public bool EmailConfirmed { get; private set; }
+    public string? TwoFactorSecret { get; private set; }
+    public bool TwoFactorEnabled { get; private set; }
     public bool Active { get; private set; }
     public DateTime? DeactivatedAt { get; private set; }
     public bool Deleted { get; private set; }
@@ -14,12 +16,11 @@ public class User : Auditable {
 
     public ICollection<UserPolicy> Policies { get; private set; } = new List<UserPolicy>();
 
-    public User(Guid id, string username, string password, string email, Guid roleId) {
-        Id = id;
+    public User(string username, string password, string email) {
         Username = username;
         Password = password;
         Email = email;
-        RoleId = roleId;
+        RoleId = Guid.Parse("a191243f-1149-4b19-a66c-96541dc2deff");
         Active = true;
         EmailConfirmed = false;
         Deleted = false;
@@ -61,5 +62,10 @@ public class User : Auditable {
             Active = true;
             DeactivatedAt = null;
         }
+    }
+
+    public void EnableTwoFactor(string secret) {
+        TwoFactorSecret = secret;
+        TwoFactorEnabled = true;
     }
 }

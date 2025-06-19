@@ -17,12 +17,33 @@ namespace Authentication.API.Controllers {
             var result = _authenticationService.Login(request);
 
             if (!result.Success) {
-                if (result.IsInactive)
-                    return Forbid();
-                else if (result.EmailNotConfirmed)
-                    return Forbid();
+                if (result.IsInactive) {
+                    return StatusCode(StatusCodes.Status403Forbidden, new LoginResponseDto {
+                        ErrorMessage = "Account is inactive."
+                    });
+                }
 
-                    return NotFound(); 
+                if (result.EmailNotConfirmed) {
+                    return StatusCode(StatusCodes.Status403Forbidden, new LoginResponseDto {
+                        ErrorMessage = "Email is not confirmed."
+                    });
+                }
+
+                return Unauthorized(new LoginResponseDto {
+                    ErrorMessage = result.Response?.ErrorMessage ?? "Invalid username or password."
+                });
+            }
+
+            return Ok(result.Response);
+        }
+
+
+        [HttpPost("register")]
+        public async Task<ActionResult<RegisterResponseDto>> Register([FromBody] RegisterRequestDto request) {
+            var result = await _authenticationService.RegisterAsync(request);
+
+            if (!result.Success) {
+                return BadRequest(new { error = result.ErrorMessage });
             }
 
             return Ok(result.Response);

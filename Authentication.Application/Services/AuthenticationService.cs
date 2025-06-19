@@ -9,14 +9,16 @@ namespace Authentication.Application.Services {
     public class AuthenticationService : IAuthenticationService {
         private readonly ITokenRepository _tokenRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
         private readonly IRoleService _roleService;
 
-        public AuthenticationService(ITokenRepository tokenRepository, IUserRepository userRepository, IConfiguration configuration, IRoleService roleService) {
+        public AuthenticationService(ITokenRepository tokenRepository, IUserRepository userRepository, IConfiguration configuration, IRoleService roleService, IUserService userService) {
             _tokenRepository = tokenRepository;
             _userRepository = userRepository;
             _configuration = configuration;
             _roleService = roleService;
+            _userService = userService;
         }
 
         public LoginResult Login(LoginRequestDto request) {
@@ -36,6 +38,29 @@ namespace Authentication.Application.Services {
 
             if (!user.Active)
                 return new LoginResult { Success = false, IsInactive = true };
+
+            if (user.TwoFactorEnabled) {
+                if (string.IsNullOrWhiteSpace(request.TwoFactorCode)) {
+                    return new LoginResult {
+                        Success = false,
+                        Response = new LoginResponseDto {
+                            ErrorMessage = "2FA code required."
+                        }
+                    };
+                }
+
+                var hmacSecret = _configuration["HMAC_SECRET"];
+
+                if (!TotpHelper.VerifyCode(hmacSecret, request.TwoFactorCode)) {
+                    return new LoginResult {
+                        Success = false,
+                        Response = new LoginResponseDto {
+                            ErrorMessage = "Invalid 2FA code."
+                        }
+                    };
+                }
+            }
+
 
             if (!user.EmailConfirmed)
                 return new LoginResult { Success = false, EmailNotConfirmed = true };
@@ -92,5 +117,32 @@ namespace Authentication.Application.Services {
                 }
             };
         }
+
+        public async Task<RegisterResult> RegisterAsync(RegisterRequestDto request) {
+            var existing = await _userRepository.FindByEmailOrUsernameAsync(request.Email, request.Username);
+            if (existing.EmailExists || existing.UsernameExists) {
+                return new RegisterResult {
+                    Success = false,
+                    ErrorMessage = "Email or Username already exists."
+                };
+            }
+
+            var hashedPassword = PasswordHasher.Hash(request.Password);
+            var newUser = new User(request.Username, hashedPassword, request.Email);
+            newUser.Deactivate(); 
+
+            await _userRepository.CreateUserAsync(newUser);
+
+            await _userService.GenerateEmailConfirmationAsync(newUser);
+
+            return new RegisterResult {
+                Success = true,
+                Response = new RegisterResponseDto {
+                    UserId = newUser.Id,
+                    Message = "Registration successful. Please confirm your email."
+                }
+            };
+        }
+
     }
 }
