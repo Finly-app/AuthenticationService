@@ -44,7 +44,7 @@ public static class TotpHelper {
 
     public static string Base32Encode(byte[] data) {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new();
         int buffer = data[0], next = 1, bitsLeft = 8;
 
         while (bitsLeft > 0 || next < data.Length) {

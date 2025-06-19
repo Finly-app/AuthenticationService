@@ -36,12 +36,14 @@ if (string.IsNullOrWhiteSpace(dbPassword))
 
 //var connectionString = $"User Id={user};Password={dbPassword};Server={host};Port={port};Database={db};";
 
+
 //temp
 var connectionString = "User Id=postgres.yqffjelgjtakhwaobuiu;Password=reVOYaRDAtENbeDefruC;Server=aws-0-eu-central-1.pooler.supabase.com;Port=5432;Database=postgres";
 
-
 builder.Services.AddDbContext<AuthenticationDatabaseContext>(options =>
     options.UseNpgsql(connectionString));
+
+builder.Services.AddMemoryCache();
 
 // DEPENDENCY INJECTION
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -53,6 +55,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IPolicyRepository, PolicyRepository>();
 
+builder.Services.AddSingleton<ITotpCacheService, TotpCacheService>();
 builder.Services.AddSingleton<IUserUpdatedHandler, UserUpdatedHandler>();
 builder.Services.AddSingleton<IUserCreatedHandler, UserCreatedHandler>();
 builder.Services.AddSingleton<IUserDeletedHandler, UserDeletedHandler>();
@@ -124,7 +127,6 @@ builder.Services.AddAuthorization(options => {
     options.AddPolicy("policies:update", policy => policy.RequireClaim("policy", "policies:update"));
     options.AddPolicy("policies:delete", policy => policy.RequireClaim("policy", "policies:delete"));
 });
-
 
 var app = builder.Build();
 

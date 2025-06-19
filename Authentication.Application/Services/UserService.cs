@@ -63,7 +63,8 @@ namespace Authentication.Application.Services {
         }
 
         public async Task GenerateEmailConfirmationAsync(User user) {
-            var confirmationLink = $"http://localhost:8000/confirm?userId={user.Id}"; // Replace with actual domain if needed
+            //TODO: get the confirmation link from either the database or env file
+            var confirmationLink = $"http://localhost:4200/email-confirmation?userId={user.Id}";
 
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Finly", "no-reply@finly.com"));

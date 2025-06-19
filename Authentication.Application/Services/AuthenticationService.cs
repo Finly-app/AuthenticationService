@@ -3,7 +3,6 @@ using Authentication.Application.Security;
 using Authentication.Domain.DTOs;
 using Authentication.Domain.Entities;
 using Microsoft.Extensions.Configuration;
-using System.Text;
 
 namespace Authentication.Application.Services {
     public class AuthenticationService : IAuthenticationService {
@@ -39,28 +38,41 @@ namespace Authentication.Application.Services {
             if (!user.Active)
                 return new LoginResult { Success = false, IsInactive = true };
 
-            if (user.TwoFactorEnabled) {
-                if (string.IsNullOrWhiteSpace(request.TwoFactorCode)) {
-                    return new LoginResult {
-                        Success = false,
-                        Response = new LoginResponseDto {
-                            ErrorMessage = "2FA code required."
-                        }
-                    };
-                }
-
-                var hmacSecret = _configuration["HMAC_SECRET"];
-
-                if (!TotpHelper.VerifyCode(hmacSecret, request.TwoFactorCode)) {
-                    return new LoginResult {
-                        Success = false,
-                        Response = new LoginResponseDto {
-                            ErrorMessage = "Invalid 2FA code."
-                        }
-                    };
-                }
+            if (!user.TwoFactorEnabled) {
+                return new LoginResult {
+                    Success = false,
+                    Response = new LoginResponseDto {
+                        ErrorMessage = "Two-Factor Authentication (2FA) must be enabled to log in."
+                    }
+                };
             }
 
+            if (string.IsNullOrWhiteSpace(request.TwoFactorCode)) {
+                return new LoginResult {
+                    Success = false,
+                    Response = new LoginResponseDto {
+                        ErrorMessage = "2FA code required."
+                    }
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(user.TwoFactorSecret)) {
+                return new LoginResult {
+                    Success = false,
+                    Response = new LoginResponseDto {
+                        ErrorMessage = "2FA failed contact customer support!"
+                    }
+                };
+            }
+
+            if (!TotpHelper.VerifyCode(user.TwoFactorSecret, request.TwoFactorCode)) {
+                return new LoginResult {
+                    Success = false,
+                    Response = new LoginResponseDto {
+                        ErrorMessage = "Invalid 2FA code."
+                    }
+                };
+            }
 
             if (!user.EmailConfirmed)
                 return new LoginResult { Success = false, EmailNotConfirmed = true };
@@ -129,7 +141,6 @@ namespace Authentication.Application.Services {
 
             var hashedPassword = PasswordHasher.Hash(request.Password);
             var newUser = new User(request.Username, hashedPassword, request.Email);
-            newUser.Deactivate(); 
 
             await _userRepository.CreateUserAsync(newUser);
 
