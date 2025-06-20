@@ -6,8 +6,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Application.Services {
     public class AuthenticationService : IAuthenticationService {
-        private readonly ITokenRepository _tokenRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly ITokenRepository _tokenRepository; //TODO: TokenService maken
+        private readonly IUserRepository _userRepository; //TODO: Deze eruit halen hier
         private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
         private readonly IRoleService _roleService;
