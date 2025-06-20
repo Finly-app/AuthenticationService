@@ -18,7 +18,6 @@ public class UserCreatedHandler : IUserCreatedHandler {
     public async Task HandleAsync(UserCreatedEvent message, string secret, IProducer<Null, string> producer) {
         using var scope = _scopeFactory.CreateScope();
         var _userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-        var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
         var _roleService = scope.ServiceProvider.GetRequiredService<IRoleService>();
 
         var existence = await _userRepository.FindByEmailOrUsernameAsync(message.Email, message.Username);
@@ -40,8 +39,6 @@ public class UserCreatedHandler : IUserCreatedHandler {
 
             var user = new User(message.Username, hashedPassword, message.Email);
             await _userRepository.CreateUserAsync(user);
-
-            _userService.GenerateEmailConfirmationAsync(user);
 
             response = new UserCreatedResponse {
                 CorrelationId = message.CorrelationId,
